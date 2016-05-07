@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Queue;
+import java.util.LinkedList;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -34,6 +36,7 @@ public class CoreChat{
 	public Publisher chatPub;
 	
 	public String userName;
+	public Queue<Message> msgQueue = new LinkedList<Message>();
 	public HashMap<String, String> participants = new HashMap<String, String>();
 	public BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
@@ -94,6 +97,27 @@ public class CoreChat{
 								break;
 	
 						}
+					}
+					
+					String score = msg.getMeta("score");
+					if(score != null && !score.isEmpty()) {
+						int s = Integer.valueOf(score);
+						String username = msg.getMeta("userName");
+						for (Ball ball : gl.getBalls()) 
+							if(ball.getName().equals(username)) {
+								ball.setScore(s);
+								break;
+							}	
+					}
+					String current_coins = msg.getMeta("current");
+					if(current_coins != null && !current_coins.isEmpty()) {
+						int s = Integer.valueOf(current_coins);
+						String username = msg.getMeta("userName");
+						for (Ball ball : gl.getBalls()) 
+							if(ball.getName().equals(username)) {
+								ball.setCurrentCoins(s);;
+								break;
+							}	
 					}
 					
 					String[] str = msg.getMeta("chatMsg").split(",");
@@ -216,6 +240,14 @@ public class CoreChat{
 		Message msg = new Message();
 		msg.putMeta("userName", this.userName);
 		msg.putMeta("chatMsg", ball.getXY_Str());
+		chatPub.send(msg);
+	}
+	
+	public void sendNewBallScore(Ball ball) {
+		Message msg = new Message();
+		msg.putMeta("userName", ball.getName());
+		msg.putMeta("score", Integer.toString(ball.getScore()));
+		msg.putMeta("current", Integer.toString(ball.getCurrentCoins()));
 		chatPub.send(msg);
 	}
 	

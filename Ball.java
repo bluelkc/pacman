@@ -127,12 +127,21 @@ public class Ball {
 		this.coin_absorbed_current ++;
 	}
 	
+	public void absorbCoins(int coins) {
+		this.coin_absorbed += coins;
+		this.coin_absorbed_current += coins;
+	}
+	
 	public void resetCoinCurrent() {
 		this.coin_absorbed_current = 0;
 	}
 	
 	public int getCurrentCoins() {
 		return this.coin_absorbed_current;
+	}
+	
+	public void setCurrentCoins(int current) {
+		this.coin_absorbed_current = current;
 	}
 	
 	public int getScore() {

@@ -74,11 +74,15 @@ public class GameLogic {
 			}
 			for(Ball c : Coins) {
 				if(isOverlap(fb, c)) {
-					toRemoveCoin.add(c);					
-					fb.absorbCoin();
-					fb.adjustShape(BALL_RADIUS);					
+					toRemoveCoin.add(c);	
+
+					if(fb == this.getMBall()) {
+						fb.absorbCoin();
+						this.corechat.sendNewBallScore(fb);
+					}
 				}
 			}
+			fb.adjustShape(BALL_RADIUS);
 			
 			if(pos == Balls.size()) break;
 			
@@ -87,19 +91,27 @@ public class GameLogic {
 					System.out.println("Overlap:" + fb.getName() + " " + sb.getName());
 					if(fb.isLocal()) {
 						if(fb.getR() <= sb.getR()) {
+							sb.absorbCoins((int)(fb.getCurrentCoins()/2));
+							this.corechat.sendNewBallScore(sb);
 							mainBallReincarnate(fb);
 							System.out.println("main ball is eaten");
 					    }
 						if(sb.getR() <= fb.getR()) {
+							//fb.setScore(fb.getScore() + (int)(sb.getCurrentCoins()/2));
+							//this.corechat.sendNewBallScore(fb);
 							otherBallReincarnate(sb);
 					    	System.out.println("other ball is eaten");
 					    }		
 					} else if (sb.isLocal()) {
 						if(sb.getR() <= fb.getR()) {
+							fb.absorbCoins((int)(sb.getCurrentCoins()/2));
+							this.corechat.sendNewBallScore(fb);
 							mainBallReincarnate(sb);
 							System.out.println("main ball is eaten");
 					    }
 						if(fb.getR() <= sb.getR()) {
+							//sb.setScore(sb.getScore() + (int)(fb.getCurrentCoins()/2));
+							//this.corechat.sendNewBallScore(sb);
 							otherBallReincarnate(fb);
 					    	System.out.println("other ball is eaten");
 					    }
