@@ -47,7 +47,7 @@ public class GameLogic {
 		this.gpanel.addKeyListener(this.bc);
 		this.Balls.add(mball);
 		
-		if(corechat.userName.equals("host")) {
+		if(corechat.isHost) {
 			for(int i = 0; i < this.numCoins; i++) {
 				Ball coin = randomGenerateBall(COIN_RADIUS, this.dframe);
 				coin.setColor(COIN_COLOR);
@@ -128,7 +128,7 @@ public class GameLogic {
 		}
 		this.bc.adjustSpeed(BALL_RADIUS);
 		
-		if(this.Coins.isEmpty() && corechat.userName.equals("host")) {
+		if(this.Coins.isEmpty() && corechat.isHost) {
 			for(int i = 0; i < numCoins; i++) {
 				Ball new_coin = randomGenerateBall(COIN_RADIUS, this.dframe);
 				new_coin.setColor(COIN_COLOR);
@@ -204,5 +204,13 @@ public class GameLogic {
 			this.x = x;
 			this.y = y;
 		}		
+	}
+	
+	public void sendHostExit() {
+		for(Ball ball : Balls)
+			if(!ball.getName().equals(corechat.userName))
+				{corechat.sendHostExit(ball.getName());
+				break;
+				}
 	}
 }

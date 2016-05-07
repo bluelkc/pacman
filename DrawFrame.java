@@ -28,6 +28,15 @@ public class DrawFrame extends JFrame{
         this.add(gpanel, BorderLayout.CENTER);    
         this.gpanel = gpanel;
         this.corechat.gpanel = gpanel;
+        
+        this.addWindowListener( new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+
+            	gpanel.GetGameLogic().sendHostExit();
+            	System.exit(0);
+            }
+        });
     }   
     
     public static void main(String[] args){   

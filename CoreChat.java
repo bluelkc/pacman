@@ -27,7 +27,7 @@ import org.umundo.core.SubscriberStub;
 
 public class CoreChat{
 	
-	//public boolean isServer = true;
+	public boolean isHost = false;
 	
 	public GamePanel gpanel;
 	public Discovery disc;
@@ -54,6 +54,16 @@ public class CoreChat{
 		chatPub.setGreeter(new ChatGreeter(userName));
 		chatNode.addPublisher(chatPub);
 		chatNode.addSubscriber(chatSub);
+		
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if( chatPub.waitForSubscribers(0) == 0)
+			isHost = true;
 	}
 	
 	class ChatReceiver extends Receiver {
@@ -78,7 +88,7 @@ public class CoreChat{
 					String ready = msg.getMeta("ready");
 					if(ready.equals("true")) {
 						sendNewBallCoord(gl.getMBall());
-						if(userName.equals("host")) {
+						if(isHost) {
 							sendNewCoinCoord(gl.getCoins());
 						}
 					}	
@@ -126,7 +136,11 @@ public class CoreChat{
 					}		
 					if(str[0].equals("Coin")) {
 						updateCoins(str, gl);			
-				    }
+				    }				
+					if(str[0].equals("HostExit"))
+						if(str[1].equals(userName))
+							isHost=true;
+					
 				} catch (Exception e) {
 					System.out.println("receive " + e.getMessage());
 				}
@@ -147,14 +161,11 @@ public class CoreChat{
 	    		Ball ball = new Ball(GameLogic.BALL_RADIUS, Integer.valueOf(str[1]), Integer.valueOf(str[2])
 	    				, GameLogic.OTHER_BALL_COLOR, username, false);
 	    		gl.getBalls().add(ball);
-	    		if(ball.getName().equals("host")) {
-	    			System.out.println("Received host msg");
-	    		}
 	    	}
 		}
 		
 		private void updateCoins(String[] str, GameLogic gl) {
-	    	if(!userName.equals("host")) {
+	    	if(!isHost) {
 	    		gl.getCoins().clear();
 	    		for (int i = 0; i + 2 < str.length; i = i + 3) {
 	    			Ball coin = new Ball(GameLogic.COIN_RADIUS, Integer.valueOf(str[i+1]), Integer.valueOf(str[i+2]),
@@ -249,6 +260,16 @@ public class CoreChat{
 		msg.putMeta("score", Integer.toString(ball.getScore()));
 		msg.putMeta("current", Integer.toString(ball.getCurrentCoins()));
 		chatPub.send(msg);
+	}
+	
+	public void sendHostExit(String nextHost) {
+
+		if(isHost) {
+			Message msg = new Message();
+			msg.putMeta("userName", userName);
+			msg.putMeta("chatMsg", "HostExit,"+nextHost);
+			chatPub.send(msg);
+		}
 	}
 	
 	public void sendReadyToPlay() {
