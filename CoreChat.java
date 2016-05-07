@@ -13,6 +13,9 @@ import javax.swing.JOptionPane;
 
 import org.umundo.core.Discovery;
 import org.umundo.core.Discovery.DiscoveryType;
+
+import drawtogether.Ball.Facing;
+
 import org.umundo.core.Greeter;
 import org.umundo.core.Message;
 import org.umundo.core.Node;
@@ -88,6 +91,7 @@ public class CoreChat{
 					String ready = msg.getMeta("ready");
 					if(ready.equals("true")) {
 						sendNewBallCoord(gl.getMBall());
+						sendNewBallScore(gl.getMBall());
 						if(isHost) {
 							sendNewCoinCoord(gl.getCoins());
 						}
@@ -151,6 +155,31 @@ public class CoreChat{
 	    	boolean ball_existed = false;  	
 	    	for (Ball ball : gl.getBalls()) 
 	    		if(ball.getName().equals(username)) {
+	    			int dx = Integer.valueOf(str[1]) - ball.getX();
+	    			int dy = Integer.valueOf(str[2]) - ball.getY();
+	    			if(dx > 0) {
+	    				if(dy > 0) {
+	    					ball.setFace(Facing.BOTTOMRIGHT);
+	    				} else if (dy < 0) {
+	    					ball.setFace(Facing.TOPRIGHT);
+	    				} else {
+	    					ball.setFace(Facing.RIGHT);
+	    				}
+	    			} else if (dx < 0){
+	    				if(dy > 0) {
+	    					ball.setFace(Facing.BOTTOMLEFT);
+	    				} else if (dy < 0) {
+	    					ball.setFace(Facing.TOPLEFT);
+	    				} else {
+	    					ball.setFace(Facing.LEFT);
+	    				}
+	    			} else {
+	    				if(dy > 0) {
+	    					ball.setFace(Facing.BOTTOM);
+	    				} else {
+	    					ball.setFace(Facing.TOP);
+	    				}
+	    			}
 					ball.setX(Integer.valueOf(str[1]));
 					ball.setY(Integer.valueOf(str[2]));
 					ball.setColor(GameLogic.OTHER_BALL_COLOR);

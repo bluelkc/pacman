@@ -3,18 +3,21 @@ package drawtogether;
 import java.awt.Color;
 
 public class Ball {
-	private static final int increment = 3;
+	private static final int increment = 4;
 	
 	private int radius;
 	private int x;
 	private int y;
-	private int dx;
-	private int dy;
+	private int dx = 0;
+	private int dy = 0;
+	private Facing face;
 	private boolean local;
 	private Color color;
 	private String name;
 	private int coin_absorbed = 0;
 	private int coin_absorbed_current = 0;
+	
+	public enum Facing {RIGHT, LEFT, TOP, BOTTOM, TOPRIGHT, TOPLEFT, BOTTOMRIGHT, BOTTOMLEFT};
 	
 	public Ball(int r, int x, int y) {
 		this.radius = r;
@@ -22,6 +25,7 @@ public class Ball {
 		this.y = y;
 		this.color = Color.RED;
 		this.local = true;
+		this.face = Facing.RIGHT;
 	}
 
 	public Ball(int r, int x, int y, Color c) {
@@ -30,6 +34,7 @@ public class Ball {
 		this.y = y;
 		this.color = c;
 		this.local = true;
+		this.face = Facing.RIGHT;
 	}
 
 	public Ball(int r, int x, int y, Color c, boolean isLocal) {
@@ -38,6 +43,7 @@ public class Ball {
 		this.y = y;
 		this.color = c;
 		this.local = isLocal;
+		this.face = Facing.RIGHT;
 	}
 	
 	public Ball(int r, int x, int y, Color c, String name, boolean isLocal) {
@@ -47,6 +53,7 @@ public class Ball {
 		this.color = c;
 		this.name = name;
 		this.local = isLocal;
+		this.face = Facing.RIGHT;
 	}
 	
 	public boolean isLocal() {
@@ -61,6 +68,29 @@ public class Ball {
 		this.y += dy;
 		if(dx == 0 && dy == 0) {
 			return false;
+		}
+		if(dx > 0) {
+			if(dy > 0) {
+				this.face = Facing.BOTTOMRIGHT;
+			} else if (dy < 0) {
+				this.face = Facing.TOPRIGHT;
+			} else {
+				this.face = Facing.RIGHT;
+			}
+		} else if (dx < 0){
+			if(dy > 0) {
+				this.face = Facing.BOTTOMLEFT;
+			} else if (dy < 0) {
+				this.face = Facing.TOPLEFT;
+			} else {
+				this.face = Facing.LEFT;
+			}
+		} else {
+			if(dy > 0) {
+				this.face = Facing.BOTTOM;
+			} else {
+				this.face = Facing.TOP;
+			}
 		}
 		return true;
 	}
@@ -95,6 +125,14 @@ public class Ball {
 	
 	public void setColor(Color color) {
 		this.color = color;
+	}
+	
+	public Facing getFace() {
+		return this.face;
+	}
+	
+	public void setFace(Facing face) {
+		this.face = face;
 	}
 	
 	public void moveX(int offsetx) {
@@ -158,6 +196,7 @@ public class Ball {
 			return;
 		}
 		double lvl = Math.log((double)this.coin_absorbed_current);
+		lvl = lvl > 5 ? 5 : lvl;
 		this.radius = baseRadius + increment * (int)lvl;
 	}
 }
