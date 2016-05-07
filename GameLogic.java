@@ -1,15 +1,8 @@
 package drawtogether;
 
 import java.util.Random;
-
-import javax.swing.event.EventListenerList;
-
-import org.umundo.core.Message;
-
 import java.util.ArrayList;
-
 import java.awt.Color;
-import java.awt.event.KeyListener;
 
 public class GameLogic {
 	
@@ -64,7 +57,7 @@ public class GameLogic {
 		ArrayList<Ball> toRemoveCoin = new ArrayList<Ball>();
 		ArrayList<Ball> toAddCoin = new ArrayList<Ball>();
 		ArrayList<Ball> toRemoveBall = new ArrayList<Ball>();
-		ArrayList<Ball> toAddBall = new ArrayList<Ball>();
+
 		int pos = 0;
 		
 		for(Ball fb : Balls) {
@@ -97,8 +90,6 @@ public class GameLogic {
 							System.out.println("main ball is eaten");
 					    }
 						if(sb.getR() <= fb.getR()) {
-							//fb.setScore(fb.getScore() + (int)(sb.getCurrentCoins()/2));
-							//this.corechat.sendNewBallScore(fb);
 							otherBallReincarnate(sb);
 					    	System.out.println("other ball is eaten");
 					    }		
@@ -110,8 +101,6 @@ public class GameLogic {
 							System.out.println("main ball is eaten");
 					    }
 						if(fb.getR() <= sb.getR()) {
-							//sb.setScore(sb.getScore() + (int)(fb.getCurrentCoins()/2));
-							//this.corechat.sendNewBallScore(sb);
 							otherBallReincarnate(fb);
 					    	System.out.println("other ball is eaten");
 					    }
@@ -174,8 +163,7 @@ public class GameLogic {
 	public static Ball randomGenerateBall(int radius, DrawFrame dframe) {
 		Random random = new Random();
 	    int _x = 8*radius + random.nextInt(dframe.getWidth() - 16*radius);
-	    int _y = 8*radius + random.nextInt(dframe.getHeight() - 16*radius); 
-		
+	    int _y = 8*radius + random.nextInt(dframe.getHeight() - 16*radius); 	
 		return new Ball(radius, _x, _y);
 	}
 	

@@ -2,39 +2,27 @@ package drawtogether;
 
 import java.util.ArrayList;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.awt.Toolkit;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.imageio.ImageIO;
-
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import org.umundo.core.Message;
-
-import drawtogether.Ball.Facing;
-
 public class GamePanel extends JPanel implements ActionListener{  
   
 	private static final long serialVersionUID = 1L;
-    private CoreChat corechat;
+    //private CoreChat corechat;
     private Timer timer;
     private GameLogic gl;
 
   
     public GamePanel(CoreChat corechat, DrawFrame dframe) {  
 
-        this.corechat = corechat;
+        //this.corechat = corechat;
         this.setBackground(Color.WHITE);
         this.setFocusable(true);
         this.requestFocus();
@@ -56,8 +44,6 @@ public class GamePanel extends JPanel implements ActionListener{
     }
    
     public void draw(Graphics graphics) {
-    	
-    	//this.update(graphics);
     	this.gl.Update();	
     	Graphics2D g2d = (Graphics2D) graphics;   	
     	ArrayList<Ball> balls = this.gl.getBalls();

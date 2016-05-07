@@ -3,7 +3,6 @@ package drawtogether;
 import java.awt.BorderLayout;  
 import java.awt.Dimension;
 import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 
 public class DrawFrame extends JFrame{  
@@ -32,7 +31,6 @@ public class DrawFrame extends JFrame{
         this.addWindowListener( new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-
             	gpanel.GetGameLogic().sendHostExit();
             	System.exit(0);
             }

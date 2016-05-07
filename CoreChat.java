@@ -7,15 +7,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Queue;
 import java.util.LinkedList;
-
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 import org.umundo.core.Discovery;
 import org.umundo.core.Discovery.DiscoveryType;
-
-import drawtogether.Ball.Facing;
-
 import org.umundo.core.Greeter;
 import org.umundo.core.Message;
 import org.umundo.core.Node;
@@ -23,6 +19,8 @@ import org.umundo.core.Publisher;
 import org.umundo.core.Receiver;
 import org.umundo.core.Subscriber;
 import org.umundo.core.SubscriberStub;
+
+import drawtogether.Ball.Facing;
 
 /**
  * Make sure to set the correct path to umundo.jar in build.properties if you want to use ant!
@@ -36,8 +34,7 @@ public class CoreChat{
 	public Discovery disc;
 	public Node chatNode;
 	public Subscriber chatSub;
-	public Publisher chatPub;
-	
+	public Publisher chatPub;	
 	public String userName;
 	public Queue<Message> msgQueue = new LinkedList<Message>();
 	public HashMap<String, String> participants = new HashMap<String, String>();
@@ -75,17 +72,8 @@ public class CoreChat{
 		public void receive(Message msg) {
 			if (msg.getMeta().containsKey("participant")) {			
 				CoreChat.this.participants.put(msg.getMeta("subscriber"), msg.getMeta("participant"));
-				System.out.println(msg.getMeta("participant") + " joined the chat");		
-//				try {
-//					GameLogic gl = gpanel.GetGameLogic();
-//					sendNewBallCoord(gl.getMBall());
-//					sendNewCoinCoord(gl.getCoins());
-//				} catch(Exception e) {
-//					
-//				}		
+				System.out.println(msg.getMeta("participant") + " joined the chat");			
 			} else {				
-				//System.out.println(msg.getMeta("userName") + ": "
-				//		+ msg.getMeta("chatMsg"));
 				try {
 					GameLogic gl = gpanel.GetGameLogic();	
 					String ready = msg.getMeta("ready");
@@ -109,7 +97,6 @@ public class CoreChat{
 								ball.setR(GameLogic.BALL_RADIUS);
 								ball.resetCoinCurrent();
 								break;
-	
 						}
 					}
 					
@@ -146,7 +133,7 @@ public class CoreChat{
 							isHost=true;
 					
 				} catch (Exception e) {
-					System.out.println("receive " + e.getMessage());
+					System.out.println(e.getMessage());
 				}
 			}	
 		}
@@ -258,8 +245,7 @@ public class CoreChat{
 		chatNode.removeSubscriber(chatSub);
 	}
 	
-	public void sendNewCoinCoord(ArrayList<Ball> coins) {
-		
+	public void sendNewCoinCoord(ArrayList<Ball> coins) {		
 		StringBuilder sb = new StringBuilder();	
 		for(Ball coin : coins)
 			sb.append(coin.getXY_Str_coin());	
@@ -292,7 +278,6 @@ public class CoreChat{
 	}
 	
 	public void sendHostExit(String nextHost) {
-
 		if(isHost) {
 			Message msg = new Message();
 			msg.putMeta("userName", userName);
