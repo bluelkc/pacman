@@ -2,3 +2,6 @@
 bin
 dist
 .DS_Store
+.settings
+.classpath
+.project
