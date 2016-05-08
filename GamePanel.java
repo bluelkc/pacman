@@ -12,12 +12,25 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+/**
+ * GamePanel class renders all visible objects in the game.
+ */
 public class GamePanel extends JPanel implements ActionListener{  
   
 	private static final long serialVersionUID = 1L;
     private Timer timer;
+
+    /**
+     * GameLogic object that handles how the game behaves.
+     */
     private GameLogic gl;
   
+    /**
+     * Class constructor.
+     * 
+     * @param gamecon  GameConnect object to pass to GameLogic class
+     * @param dframe  JFrame which holds the GamePanel
+     */
     public GamePanel(GameConnector gamecon, DrawFrame dframe) {  
         this.setBackground(Color.BLACK);
         this.setFocusable(true);
@@ -38,6 +51,11 @@ public class GamePanel extends JPanel implements ActionListener{
     	repaint();
     }
    
+    /**
+     * Render all balls and coins and score statistics.
+     * 
+     * @param graphics  Graphics object for drawing
+     */
     public void draw(Graphics graphics) {
     	this.gl.Update();	
     	Graphics2D g2d = (Graphics2D) graphics;   	
@@ -65,6 +83,15 @@ public class GamePanel extends JPanel implements ActionListener{
     	}
     }
     
+    /**
+     * Draw a ball on GamePanel.
+     * 
+     * @param g  Graphics object for drawing
+     * @param x  horizontal coordinate
+     * @param y  vertical coordinate
+     * @param r  radius
+     * @param color  color
+     */
     public void drawBall(Graphics g, int x, int y, int r, Color color) {
     	Graphics2D g2d = (Graphics2D) g;
     	g2d.setColor(color);
@@ -72,6 +99,12 @@ public class GamePanel extends JPanel implements ActionListener{
 	            (int)(2 * r), (int)(2 * r));
     }
     
+    /**
+     * Draw a coin on GamePanel.
+     * 
+     * @param g  Graphics object for drawing
+     * @param coin  coin object to be drawn
+     */
     public void drawCoin(Graphics g, Ball coin) {
     	Graphics2D g2d = (Graphics2D) g;
     	int version = 1;
@@ -95,6 +128,12 @@ public class GamePanel extends JPanel implements ActionListener{
     	g2d.drawImage(image, coin.getX() - 8, coin.getY() - 8, this);
     }
     
+    /**
+     * Draw a ball with its image representation.
+     * 
+     * @param g  Graphics object for drawing
+     * @param ball  ball object to be drawn
+     */
     public void drawImage(Graphics g, Ball ball) {
     	Graphics2D g2d = (Graphics2D) g;
     	String direction = "right";
@@ -132,6 +171,11 @@ public class GamePanel extends JPanel implements ActionListener{
     	g2d.drawImage(image, ball.getX() - ball.getR(), ball.getY() - ball.getR(), this); 
     }
     
+    /**
+     * The GameLogic getter.
+     * 
+     * @return  the GameLogic object 
+     */
     public GameLogic GetGameLogic() {
     	return this.gl;
     }

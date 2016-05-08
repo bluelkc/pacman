@@ -5,16 +5,28 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import javax.swing.JFrame;
 
+/**
+ * DrawFram class extends JFrame to provide the game window.
+ */
 public class DrawFrame extends JFrame{  
   
     private static final long serialVersionUID = 1L;
     public GameConnector gamecon;
     public GamePanel gpanel;
     
+    /**
+     * Class constructor.
+     */
     public DrawFrame(){ 	
     	gamecon = new GameConnector();
     }
   
+    /**
+     * Initialize game window attributes.
+     * Add GamePanel that renders game visualization objects.
+     * Add GameConnector that communicates through uMundo channel.
+     * Add Listener for window close event.
+     */
     public void init() {  
         this.setTitle("Pac-Man");  
         this.setSize(new Dimension(700, 500));  
