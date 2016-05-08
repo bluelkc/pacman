@@ -21,7 +21,7 @@ public class GameLogic {
 	private DrawFrame dframe;
 	private GamePanel gpanel;
 	private BallController bc;
-	private CoreChat corechat;
+	private GameConnector gamecon;
 	
 	public ArrayList<Ball> getBalls() {
 		return this.Balls;
@@ -31,19 +31,19 @@ public class GameLogic {
 		return this.Coins;
 	}
 	
-	public GameLogic(GamePanel panel, DrawFrame dframe, CoreChat corechat) {
+	public GameLogic(GamePanel panel, DrawFrame dframe, GameConnector gamecon) {
 		
 		this.dframe = dframe;
 		this.gpanel = panel;
-		this.corechat = corechat;
+		this.gamecon = gamecon;
 		
 		Ball mball = new Ball(BALL_RADIUS, (int)(this.dframe.getWidth()/2), (int)(this.dframe.getHeight()/2),
-				MAIN_BALL_COLOR, dframe.corechat.userName, true);
+				MAIN_BALL_COLOR, dframe.gamecon.userName, true);
 		this.bc = new BallController(mball, dframe);
 		this.gpanel.addKeyListener(this.bc);
 		this.Balls.add(mball);
 		
-		if(corechat.isHost) {
+		if(gamecon.isHost) {
 			for(int i = 0; i < this.numCoins; i++) {
 				Ball coin = randomGenerateBall(COIN_RADIUS, this.dframe);
 				coin.setColor(COIN_COLOR);
@@ -54,8 +54,8 @@ public class GameLogic {
 			}
 		}
 		
-		corechat.sendNewBallCoord(mball);
-		corechat.sendReadyToPlay();
+		gamecon.sendNewBallCoord(mball);
+		gamecon.sendReadyToPlay();
 	}
 	
 	public void Update() {
@@ -77,7 +77,7 @@ public class GameLogic {
 
 					if(fb == this.getMBall()) {
 						fb.absorbCoin();
-						this.corechat.sendNewBallScore(fb);
+						this.gamecon.sendNewBallScore(fb);
 					}
 				}
 			}
@@ -90,7 +90,7 @@ public class GameLogic {
 					if(fb.isLocal()) {
 						if(fb.getR() <= sb.getR()) {
 							sb.absorbCoins((int)(fb.getCurrentCoins()/2));
-							this.corechat.sendNewBallScore(sb);
+							this.gamecon.sendNewBallScore(sb);
 							mainBallReincarnate(fb);
 					    }
 						if(sb.getR() <= fb.getR()) {
@@ -99,7 +99,7 @@ public class GameLogic {
 					} else if (sb.isLocal()) {
 						if(sb.getR() <= fb.getR()) {
 							fb.absorbCoins((int)(sb.getCurrentCoins()/2));
-							this.corechat.sendNewBallScore(fb);
+							this.gamecon.sendNewBallScore(fb);
 							mainBallReincarnate(sb);
 					    }
 						if(fb.getR() <= sb.getR()) {
@@ -118,7 +118,7 @@ public class GameLogic {
 		}
 		this.bc.adjustSpeed(BALL_RADIUS);
 		
-		if(this.Coins.isEmpty() && corechat.isHost) {
+		if(this.Coins.isEmpty() && gamecon.isHost) {
 			for(int i = 0; i < numCoins; i++) {
 				Ball new_coin = randomGenerateBall(COIN_RADIUS, this.dframe);
 				Random random = new Random();
@@ -126,7 +126,7 @@ public class GameLogic {
 	            new_coin.setScore(color);
 				toAddCoin.add(new_coin);
 			}
-			corechat.sendNewCoinCoord(toAddCoin);
+			gamecon.sendNewCoinCoord(toAddCoin);
 		}
 		
 		for(Ball c : toRemoveCoin) {this.Coins.remove(c);}
@@ -134,7 +134,7 @@ public class GameLogic {
 		for(Ball b : toRemoveBall) {this.Balls.remove(b);}
 		
 		if(flag)
-			corechat.sendNewBallCoord(getMBall());
+			gamecon.sendNewBallCoord(getMBall());
 	}
 	
 	private void mainBallReincarnate(Ball mb) {
@@ -144,7 +144,7 @@ public class GameLogic {
 		mb.setR(BALL_RADIUS);
 		mb.resetCoinCurrent();
 		mb.setColor(MAIN_BALL_COLOR);
-		this.corechat.sendBallResetPos(mb);
+		this.gamecon.sendBallResetPos(mb);
 	}
 	
 	private void otherBallReincarnate(Ball ob) {
@@ -199,8 +199,8 @@ public class GameLogic {
 	
 	public void sendHostExit() {
 		for(Ball ball : Balls)
-			if(!ball.getName().equals(corechat.userName))
-				{corechat.sendHostExit(ball.getName());
+			if(!ball.getName().equals(gamecon.userName))
+				{gamecon.sendHostExit(ball.getName());
 				break;
 				}
 	}

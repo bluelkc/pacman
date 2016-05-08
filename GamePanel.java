@@ -21,14 +21,14 @@ public class GamePanel extends JPanel implements ActionListener{
     private GameLogic gl;
 
   
-    public GamePanel(CoreChat corechat, DrawFrame dframe) {  
+    public GamePanel(GameConnector gamecon, DrawFrame dframe) {  
 
         //this.corechat = corechat;
         this.setBackground(Color.BLACK);
         this.setFocusable(true);
         this.requestFocus();
         
-        this.gl = new GameLogic(this, dframe, corechat);      
+        this.gl = new GameLogic(this, dframe, gamecon);      
         this.timer = new Timer(10, this);
         this.timer.start();
     }

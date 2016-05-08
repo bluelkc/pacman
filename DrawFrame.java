@@ -8,11 +8,11 @@ import javax.swing.JFrame;
 public class DrawFrame extends JFrame{  
   
     private static final long serialVersionUID = 1L;
-    public CoreChat corechat;
+    public GameConnector gamecon;
     public GamePanel gpanel;
     
     public DrawFrame(){ 	
-    	corechat = new CoreChat();
+    	gamecon = new GameConnector();
     }
   
     public void init() {  
@@ -23,10 +23,10 @@ public class DrawFrame extends JFrame{
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  
         this.setVisible(true);  
         
-        GamePanel gpanel = new GamePanel(this.corechat, this);
+        GamePanel gpanel = new GamePanel(this.gamecon, this);
         this.add(gpanel, BorderLayout.CENTER);    
         this.gpanel = gpanel;
-        this.corechat.gpanel = gpanel;
+        this.gamecon.gpanel = gpanel;
         
         this.addWindowListener( new java.awt.event.WindowAdapter() {
             @Override

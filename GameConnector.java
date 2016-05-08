@@ -27,34 +27,34 @@ import drawtogether.Ball.Facing;
  * Make sure to set the correct path to umundo.jar in build.properties if you want to use ant!
  */
 
-public class CoreChat{
+public class GameConnector{
 	
 	public boolean isHost = false;
 	
 	public GamePanel gpanel;
 	public Discovery disc;
-	public Node chatNode;
-	public Subscriber chatSub;
-	public Publisher chatPub;	
+	public Node gameNode;
+	public Subscriber gameSub;
+	public Publisher gamePub;	
 	public String userName;
 	public Queue<Message> msgQueue = new LinkedList<Message>();
 	public HashMap<String, String> participants = new HashMap<String, String>();
 	public BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
-	public CoreChat() {	
+	public GameConnector() {	
 		disc = new Discovery(DiscoveryType.MDNS);	
-		chatNode = new Node();
-		chatSub = new Subscriber("coreChat");
-		chatSub.setReceiver(new ChatReceiver());	
-		chatPub = new Publisher("coreChat");		
-		disc.add(chatNode);
+		gameNode = new Node();
+		gameSub = new Subscriber("pacman");
+		gameSub.setReceiver(new GameReceiver());	
+		gamePub = new Publisher("pacman");		
+		disc.add(gameNode);
 		
 	    JFrame frame = new JFrame("Username");
 	    userName = JOptionPane.showInputDialog(frame, "Please Input your Username");
     
-		chatPub.setGreeter(new ChatGreeter(userName));
-		chatNode.addPublisher(chatPub);
-		chatNode.addSubscriber(chatSub);
+		gamePub.setGreeter(new GameGreeter(userName));
+		gameNode.addPublisher(gamePub);
+		gameNode.addSubscriber(gameSub);
 		
 		try {
 			Thread.sleep(1000);
@@ -63,17 +63,17 @@ public class CoreChat{
 			e.printStackTrace();
 		}
 		
-		if( chatPub.waitForSubscribers(0) == 0)
+		if( gamePub.waitForSubscribers(0) == 0)
 			isHost = true;
 	}
 	
-	class ChatReceiver extends Receiver {
+	class GameReceiver extends Receiver {
 
 		@Override
 		public void receive(Message msg) {
 			if (msg.getMeta().containsKey("participant")) {			
-				CoreChat.this.participants.put(msg.getMeta("subscriber"), msg.getMeta("participant"));
-				System.out.println(msg.getMeta("participant") + " joined the chat");			
+				GameConnector.this.participants.put(msg.getMeta("subscriber"), msg.getMeta("participant"));
+				System.out.println(msg.getMeta("participant") + " joined the game");			
 			} else {				
 				try {
 					GameLogic gl = gpanel.GetGameLogic();	
@@ -122,7 +122,7 @@ public class CoreChat{
 							}	
 					}
 					
-					String[] str = msg.getMeta("chatMsg").split(",");
+					String[] str = msg.getMeta("ctrlMsg").split(",");
 					if(str[0].equals("Ball")) {			
 						updateBall(str, msg.getMeta("userName"), gl);
 					}		
@@ -196,9 +196,9 @@ public class CoreChat{
 		}
 	}
 
-	class ChatGreeter extends Greeter {
+	class GameGreeter extends Greeter {
 		public String userName;
-		public ChatGreeter(String userName) {
+		public GameGreeter(String userName) {
 			this.userName = userName;
 		}
 
@@ -206,25 +206,25 @@ public class CoreChat{
 		public void welcome(Publisher pub, SubscriberStub subStub) {
 			Message greeting = Message.toSubscriber(subStub.getUUID());
 			greeting.putMeta("participant", userName);
-			greeting.putMeta("subscriber", CoreChat.this.chatSub.getUUID());
+			greeting.putMeta("subscriber", GameConnector.this.gameSub.getUUID());
 			pub.send(greeting);	
 		}
 
 		@Override
 		public void farewell(Publisher pub, SubscriberStub subStub) {
-			if (CoreChat.this.participants.containsKey(subStub.getUUID())) {
-				System.out.println(CoreChat.this.participants.get(subStub.getUUID()) + " left the chat");
+			if (GameConnector.this.participants.containsKey(subStub.getUUID())) {
+				System.out.println(GameConnector.this.participants.get(subStub.getUUID()) + " left the game");
 				GameLogic gl = gpanel.GetGameLogic();
 				Ball toRemove = null;
 				for (Ball ball : gl.getBalls()) 
-		    		if(ball.getName().equals(CoreChat.this.participants.get(subStub.getUUID()))) {
+		    		if(ball.getName().equals(GameConnector.this.participants.get(subStub.getUUID()))) {
 						toRemove = ball;
 						break;
 		    		}  	
 				if(toRemove != null)
 				gl.getBalls().remove(toRemove);
 			} else {
-				System.out.println("An unknown user left the chat: " + subStub.getUUID());	
+				System.out.println("An unknown user left the game: " + subStub.getUUID());	
 			}
 		}	
 	}
@@ -242,11 +242,11 @@ public class CoreChat{
 				break;
 			Message msg = new Message();
 			msg.putMeta("userName", userName);
-			msg.putMeta("chatMsg", line);
-			chatPub.send(msg);
+			msg.putMeta("ctrlMsg", line);
+			gamePub.send(msg);
 		}
-		chatNode.removePublisher(chatPub);
-		chatNode.removeSubscriber(chatSub);
+		gameNode.removePublisher(gamePub);
+		gameNode.removeSubscriber(gameSub);
 	}
 	
 	public void sendNewCoinCoord(ArrayList<Ball> coins) {		
@@ -256,21 +256,21 @@ public class CoreChat{
 		Message msg = new Message();
 		msg.putMeta("userName", userName);
 		msg.putMeta("chatMsg", sb.toString());
-		chatPub.send(msg);
+		gamePub.send(msg);
 	}
 	
 	public void sendBallResetPos(Ball ball) {
 		Message msg = new Message();
 		msg.putMeta("userName", this.userName);
 		msg.putMeta("resetPos", ball.getXY_Str());
-		chatPub.send(msg);
+		gamePub.send(msg);
 	}
 	
 	public void sendNewBallCoord(Ball ball) {
 		Message msg = new Message();
 		msg.putMeta("userName", this.userName);
-		msg.putMeta("chatMsg", ball.getXY_Str());
-		chatPub.send(msg);
+		msg.putMeta("ctrlMsg", ball.getXY_Str());
+		gamePub.send(msg);
 	}
 	
 	public void sendNewBallScore(Ball ball) {
@@ -278,15 +278,15 @@ public class CoreChat{
 		msg.putMeta("userName", ball.getName());
 		msg.putMeta("score", Integer.toString(ball.getScore()));
 		msg.putMeta("current", Integer.toString(ball.getCurrentCoins()));
-		chatPub.send(msg);
+		gamePub.send(msg);
 	}
 	
 	public void sendHostExit(String nextHost) {
 		if(isHost) {
 			Message msg = new Message();
 			msg.putMeta("userName", userName);
-			msg.putMeta("chatMsg", "HostExit,"+nextHost);
-			chatPub.send(msg);
+			msg.putMeta("ctrlMsg", "HostExit,"+nextHost);
+			gamePub.send(msg);
 		}
 	}
 	
@@ -294,6 +294,6 @@ public class CoreChat{
 		Message msg = new Message();
 		msg.putMeta("userName", this.userName);
 		msg.putMeta("ready", "true");
-		chatPub.send(msg);
+		gamePub.send(msg);
 	}
 }
