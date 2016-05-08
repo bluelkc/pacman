@@ -1,4 +1,5 @@
 *.log
+*.zip
 bin
 dist
 .DS_Store
