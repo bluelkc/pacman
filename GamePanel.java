@@ -1,6 +1,7 @@
 package drawtogether;
 
 import java.util.ArrayList;
+import java.util.Random;
 import java.awt.Image;
 import java.awt.Color;
 import java.awt.Font;
@@ -23,7 +24,7 @@ public class GamePanel extends JPanel implements ActionListener{
     public GamePanel(CoreChat corechat, DrawFrame dframe) {  
 
         //this.corechat = corechat;
-        this.setBackground(Color.WHITE);
+        this.setBackground(Color.BLACK);
         this.setFocusable(true);
         this.requestFocus();
         
@@ -54,7 +55,8 @@ public class GamePanel extends JPanel implements ActionListener{
     		drawImage(graphics, b);
     	}
     	for(Ball c : coins) {
-    		drawBall(graphics, c.getX(), c.getY(), c.getR(), c.getColor());   	
+    		//drawBall(graphics, c.getX(), c.getY(), c.getR(), c.getColor()); 
+    		drawCoin(graphics, c);
     	}
     	
     	int pos = 1;
@@ -76,6 +78,29 @@ public class GamePanel extends JPanel implements ActionListener{
     	g2d.setColor(color);
     	g2d.fillOval((int) (x - r), (int) (y - r),
 	            (int)(2 * r), (int)(2 * r));
+    }
+    
+    public void drawCoin(Graphics g, Ball coin) {
+    	Graphics2D g2d = (Graphics2D) g;
+    	int version = 1;
+    	switch(coin.getScore()) {
+    	case 1:
+    		version = 1;
+    		break;
+    	case 2:
+    		version = 2;
+    		break;
+    	case 3:
+    		version = 3;
+    		break;
+    	case 4:
+    		version = 4;
+    		break;
+    		default:
+    	}
+    	ImageIcon ii = new ImageIcon("Images/pacman-"+ version + ".png");
+        Image image = ii.getImage();
+    	g2d.drawImage(image, coin.getX() - 8, coin.getY() - 8, this);
     }
     
     public void drawImage(Graphics g, Ball ball) {

@@ -8,9 +8,12 @@ public class GameLogic {
 	
 	public static final int COIN_RADIUS = 5;
 	public static final int BALL_RADIUS = 10; 
-	public static final Color MAIN_BALL_COLOR = Color.RED;
-	public static final Color COIN_COLOR = Color.YELLOW;
-	public static final Color OTHER_BALL_COLOR = Color.BLUE;
+	public static final Color MAIN_BALL_COLOR = Color.YELLOW;
+	public static final Color OTHER_BALL_COLOR = Color.ORANGE;
+	public static final Color COIN_COLOR = Color.RED;
+	public static final Color COIN_COLOR_2 = Color.PINK;
+	public static final Color COIN_COLOR_3 = Color.BLUE;
+	public static final Color COIN_COLOR_4 = Color.YELLOW;
 	
 	private ArrayList<Ball> Balls = new ArrayList<Ball>();
 	private ArrayList<Ball> Coins = new ArrayList<Ball>();
@@ -44,6 +47,9 @@ public class GameLogic {
 			for(int i = 0; i < this.numCoins; i++) {
 				Ball coin = randomGenerateBall(COIN_RADIUS, this.dframe);
 				coin.setColor(COIN_COLOR);
+				Random random = new Random();
+				int color = random.nextInt(3) + i + 1;
+	            coin.setScore(color);
 				this.Coins.add(coin);
 			}
 		}
@@ -81,28 +87,23 @@ public class GameLogic {
 			
 			for(Ball sb : Balls.subList(pos, Balls.size())) {
 				if(isOverlap(fb, sb)) {
-					System.out.println("Overlap:" + fb.getName() + " " + sb.getName());
 					if(fb.isLocal()) {
 						if(fb.getR() <= sb.getR()) {
 							sb.absorbCoins((int)(fb.getCurrentCoins()/2));
 							this.corechat.sendNewBallScore(sb);
 							mainBallReincarnate(fb);
-							System.out.println("main ball is eaten");
 					    }
 						if(sb.getR() <= fb.getR()) {
 							otherBallReincarnate(sb);
-					    	System.out.println("other ball is eaten");
 					    }		
 					} else if (sb.isLocal()) {
 						if(sb.getR() <= fb.getR()) {
 							fb.absorbCoins((int)(sb.getCurrentCoins()/2));
 							this.corechat.sendNewBallScore(fb);
 							mainBallReincarnate(sb);
-							System.out.println("main ball is eaten");
 					    }
 						if(fb.getR() <= sb.getR()) {
 							otherBallReincarnate(fb);
-					    	System.out.println("other ball is eaten");
 					    }
 					} else {
 						if(sb.getR() <= fb.getR()) {
@@ -120,7 +121,9 @@ public class GameLogic {
 		if(this.Coins.isEmpty() && corechat.isHost) {
 			for(int i = 0; i < numCoins; i++) {
 				Ball new_coin = randomGenerateBall(COIN_RADIUS, this.dframe);
-				new_coin.setColor(COIN_COLOR);
+				Random random = new Random();
+				int color = random.nextInt(3) + i + 1;
+	            new_coin.setScore(color);
 				toAddCoin.add(new_coin);
 			}
 			corechat.sendNewCoinCoord(toAddCoin);

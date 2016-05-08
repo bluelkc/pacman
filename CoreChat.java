@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Queue;
+import java.util.Random;
 import java.util.LinkedList;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -186,6 +187,9 @@ public class CoreChat{
 	    		for (int i = 0; i + 2 < str.length; i = i + 3) {
 	    			Ball coin = new Ball(GameLogic.COIN_RADIUS, Integer.valueOf(str[i+1]), Integer.valueOf(str[i+2]),
 	    					GameLogic.COIN_COLOR, userName, true);
+	    			Random random = new Random();
+					int color = random.nextInt(3) + i + 1;
+		            coin.setScore(color);
 	    			gl.getCoins().add(coin);
 	    		}
 	    	}
