@@ -1,3 +1,4 @@
 *.log
 bin
 dist
+.DS_Store
