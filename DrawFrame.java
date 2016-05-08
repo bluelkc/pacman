@@ -16,13 +16,11 @@ public class DrawFrame extends JFrame{
     }
   
     public void init() {  
-
         this.setTitle("Pac-Man");  
         this.setSize(new Dimension(700, 500));  
         this.setLocationRelativeTo(null);  
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  
-        this.setVisible(true);  
-        
+        this.setVisible(true);         
         GamePanel gpanel = new GamePanel(this.gamecon, this);
         this.add(gpanel, BorderLayout.CENTER);    
         this.gpanel = gpanel;
@@ -37,8 +35,7 @@ public class DrawFrame extends JFrame{
         });
     }   
     
-    public static void main(String[] args){   
-    	
+    public static void main(String[] args){      	
     	EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -47,5 +44,4 @@ public class DrawFrame extends JFrame{
             }
         });
     }
-
 }  

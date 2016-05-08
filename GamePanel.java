@@ -1,7 +1,6 @@
 package drawtogether;
 
 import java.util.ArrayList;
-import java.util.Random;
 import java.awt.Image;
 import java.awt.Color;
 import java.awt.Font;
@@ -16,18 +15,13 @@ import javax.swing.Timer;
 public class GamePanel extends JPanel implements ActionListener{  
   
 	private static final long serialVersionUID = 1L;
-    //private CoreChat corechat;
     private Timer timer;
     private GameLogic gl;
-
   
     public GamePanel(GameConnector gamecon, DrawFrame dframe) {  
-
-        //this.corechat = corechat;
         this.setBackground(Color.BLACK);
         this.setFocusable(true);
-        this.requestFocus();
-        
+        this.requestFocus();    
         this.gl = new GameLogic(this, dframe, gamecon);      
         this.timer = new Timer(10, this);
         this.timer.start();
@@ -51,11 +45,9 @@ public class GamePanel extends JPanel implements ActionListener{
     	ArrayList<Ball> coins = this.gl.getCoins();
 	    
     	for(Ball b : balls) {
-    		//drawBall(graphics, b.getX(), b.getY(), b.getR(), b.getColor());  
     		drawImage(graphics, b);
     	}
     	for(Ball c : coins) {
-    		//drawBall(graphics, c.getX(), c.getY(), c.getR(), c.getColor()); 
     		drawCoin(graphics, c);
     	}
     	
@@ -141,7 +133,6 @@ public class GamePanel extends JPanel implements ActionListener{
     }
     
     public GameLogic GetGameLogic() {
-    	return gl;
+    	return this.gl;
     }
-    
 }  

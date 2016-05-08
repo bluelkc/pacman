@@ -4,7 +4,6 @@ import java.awt.Color;
 
 public class Ball {
 	private static final int increment = 4;
-	
 	private int radius;
 	private int x;
 	private int y;

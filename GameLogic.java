@@ -4,6 +4,8 @@ import java.util.Random;
 import java.util.ArrayList;
 import java.awt.Color;
 
+import drawtogether.Ball.Facing;
+
 public class GameLogic {
 	
 	public static final int COIN_RADIUS = 5;
@@ -68,9 +70,13 @@ public class GameLogic {
 		
 		for(Ball fb : Balls) {
 			pos ++;
+			
+			// update ball position
 			if(fb.move()) {
 				flag = true;
 			}
+			
+			// remove coins eaten
 			for(Ball c : Coins) {
 				if(isOverlap(fb, c)) {
 					toRemoveCoin.add(c);	
@@ -83,8 +89,10 @@ public class GameLogic {
 			}
 			fb.adjustShape(BALL_RADIUS);
 			
+			// minimize for loop
 			if(pos == Balls.size()) break;
 			
+			// reset position of balls eaten by another ball
 			for(Ball sb : Balls.subList(pos, Balls.size())) {
 				if(isOverlap(fb, sb)) {
 					if(fb.isLocal()) {
@@ -118,6 +126,7 @@ public class GameLogic {
 		}
 		this.bc.adjustSpeed(BALL_RADIUS);
 		
+		// regenerate coins if no more coin
 		if(this.Coins.isEmpty() && gamecon.isHost) {
 			for(int i = 0; i < numCoins; i++) {
 				Ball new_coin = randomGenerateBall(COIN_RADIUS, this.dframe);
@@ -129,12 +138,141 @@ public class GameLogic {
 			gamecon.sendNewCoinCoord(toAddCoin);
 		}
 		
+		// update states
 		for(Ball c : toRemoveCoin) {this.Coins.remove(c);}
 		for(Ball c : toAddCoin) {this.Coins.add(c);}
 		for(Ball b : toRemoveBall) {this.Balls.remove(b);}
 		
+		// publish main ball coordinates
 		if(flag)
 			gamecon.sendNewBallCoord(getMBall());
+	}
+	
+	public Ball getMBall() {
+		for(Ball b : this.Balls) {
+			if(b.isLocal()) return b;
+		}
+		return null;
+	}
+	
+	public void sendHostExit() {
+		for(Ball ball : Balls)
+			if(!ball.getName().equals(gamecon.userName))
+				{gamecon.sendHostExit(ball.getName());
+				break;
+				}
+	}
+	
+	public void setOtherBallPosition(String[] coord, String username) {
+		if(coord.length < 3) {
+			return;
+		}
+		for (Ball ball : this.Balls) 
+			if(ball.getName().equals(username)) {
+				if(ball.isLocal()) {
+					return;
+				}
+				ball.setX(Integer.valueOf(coord[1]));
+				ball.setY(Integer.valueOf(coord[2]));
+				ball.setColor(OTHER_BALL_COLOR);
+				ball.setR(BALL_RADIUS);
+				ball.resetCoinCurrent();
+				break;
+		}
+	}
+	
+	public void setOtherBallScore(int score, String username) {
+		for (Ball ball : this.Balls) {
+			if(ball.getName().equals(username)) {
+				ball.setScore(score);
+				break;
+			}	
+		}
+	}
+	
+	public void setOtherBallCurrentCoins(int current, String username) {
+		for (Ball ball : this.Balls) {
+			if(ball.getName().equals(username)) {
+				if(ball.isLocal()) {
+					return;
+				}
+				ball.setCurrentCoins(current);;
+				break;
+			}	
+		}
+	}
+	
+	public void removeOtherBall(String uuid) {
+		Ball toRemove = null;
+		for (Ball ball : this.Balls) 
+    		if(ball.getName().equals(this.gamecon.participants.get(uuid))) {
+    			if(ball.isLocal()) {
+    				return;
+    			}
+				toRemove = ball;
+				break;
+    		}  	
+		if(toRemove != null)
+		this.Balls.remove(toRemove);
+	}
+	
+	public void updateOtherBall(String[] str, String username) {		
+    	boolean ball_existed = false;  	
+    	for (Ball ball : this.Balls) 
+    		if(ball.getName().equals(username)) {
+    			if(ball.isLocal()) {
+    				return;
+    			}
+    			int dx = Integer.valueOf(str[1]) - ball.getX();
+    			int dy = Integer.valueOf(str[2]) - ball.getY();
+    			if(dx > 0) {
+    				if(dy > 0) {
+    					ball.setFace(Facing.BOTTOMRIGHT);
+    				} else if (dy < 0) {
+    					ball.setFace(Facing.TOPRIGHT);
+    				} else {
+    					ball.setFace(Facing.RIGHT);
+    				}
+    			} else if (dx < 0){
+    				if(dy > 0) {
+    					ball.setFace(Facing.BOTTOMLEFT);
+    				} else if (dy < 0) {
+    					ball.setFace(Facing.TOPLEFT);
+    				} else {
+    					ball.setFace(Facing.LEFT);
+    				}
+    			} else {
+    				if(dy > 0) {
+    					ball.setFace(Facing.BOTTOM);
+    				} else {
+    					ball.setFace(Facing.TOP);
+    				}
+    			}
+				ball.setX(Integer.valueOf(str[1]));
+				ball.setY(Integer.valueOf(str[2]));
+				ball.setColor(GameLogic.OTHER_BALL_COLOR);
+				ball_existed = true;
+				break;
+    		}  	
+    	if(!ball_existed) {
+    		Ball ball = new Ball(GameLogic.BALL_RADIUS, Integer.valueOf(str[1]), Integer.valueOf(str[2])
+    				, GameLogic.OTHER_BALL_COLOR, username, false);
+    		this.Balls.add(ball);
+    	}
+	}
+	
+	public void updateCoins(String[] str) {
+    	if(!this.gamecon.isHost) {
+    		this.Coins.clear();
+    		for (int i = 0; i + 2 < str.length; i = i + 3) {
+    			Ball coin = new Ball(GameLogic.COIN_RADIUS, Integer.valueOf(str[i+1]), Integer.valueOf(str[i+2]),
+    					COIN_COLOR, this.gamecon.userName, true);
+    			Random random = new Random();
+				int color = random.nextInt(3) + i/3 + 1;
+	            coin.setScore(color);
+    			this.Coins.add(coin);
+    		}
+    	}
 	}
 	
 	private void mainBallReincarnate(Ball mb) {
@@ -156,14 +294,14 @@ public class GameLogic {
 		ob.setColor(OTHER_BALL_COLOR);
 	}
 	
-	public coordinates randomGenerateCoordinates() {
+	private coordinates randomGenerateCoordinates() {
 		Random random = new Random();
 	    int _x = 8*BALL_RADIUS + random.nextInt(dframe.getWidth() - 16*BALL_RADIUS);
 	    int _y = 8*BALL_RADIUS + random.nextInt(dframe.getHeight() - 16*BALL_RADIUS);
 		return new coordinates(_x, _y);
 	}
 
-	public static Ball randomGenerateBall(int radius, DrawFrame dframe) {
+	private Ball randomGenerateBall(int radius, DrawFrame dframe) {
 		Random random = new Random();
 	    int _x = 8*radius + random.nextInt(dframe.getWidth() - 16*radius);
 	    int _y = 8*radius + random.nextInt(dframe.getHeight() - 16*radius); 	
@@ -180,14 +318,7 @@ public class GameLogic {
 	private double dist(int x1, int y1, int x2, int y2) {
 		return Math.hypot(x1-x2, y1-y2);
 	}
-	
-	public Ball getMBall() {
-		for(Ball b : this.Balls) {
-			if(b.isLocal()) return b;
-		}
-		return null;
-	}
-	
+		
 	public class coordinates {
 		public final int x;
 		public final int y;
@@ -195,13 +326,5 @@ public class GameLogic {
 			this.x = x;
 			this.y = y;
 		}		
-	}
-	
-	public void sendHostExit() {
-		for(Ball ball : Balls)
-			if(!ball.getName().equals(gamecon.userName))
-				{gamecon.sendHostExit(ball.getName());
-				break;
-				}
 	}
 }

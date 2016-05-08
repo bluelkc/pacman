@@ -1,12 +1,10 @@
 package drawtogether;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Queue;
-import java.util.Random;
 import java.util.LinkedList;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -21,16 +19,12 @@ import org.umundo.core.Receiver;
 import org.umundo.core.Subscriber;
 import org.umundo.core.SubscriberStub;
 
-import drawtogether.Ball.Facing;
-
 /**
  * Make sure to set the correct path to umundo.jar in build.properties if you want to use ant!
  */
 
-public class GameConnector{
-	
+public class GameConnector{	
 	public boolean isHost = false;
-	
 	public GamePanel gpanel;
 	public Discovery disc;
 	public Node gameNode;
@@ -68,7 +62,6 @@ public class GameConnector{
 	}
 	
 	class GameReceiver extends Receiver {
-
 		@Override
 		public void receive(Message msg) {
 			if (msg.getMeta().containsKey("participant")) {			
@@ -76,123 +69,11 @@ public class GameConnector{
 				System.out.println(msg.getMeta("participant") + " joined the game");			
 			} else {				
 				try {
-					GameLogic gl = gpanel.GetGameLogic();	
-					String ready = msg.getMeta("ready");
-					if(ready.equals("true")) {
-						sendNewBallCoord(gl.getMBall());
-						sendNewBallScore(gl.getMBall());
-						if(isHost) {
-							sendNewCoinCoord(gl.getCoins());
-						}
-					}	
-					
-					String resetPos = msg.getMeta("resetPos");
-					if(resetPos != null && !resetPos.isEmpty()) {
-						String[] str = resetPos.split(",");
-						String username = msg.getMeta("userName");
-						for (Ball ball : gl.getBalls()) 
-							if(ball.getName().equals(username)) {
-								ball.setX(Integer.valueOf(str[1]));
-								ball.setY(Integer.valueOf(str[2]));
-								ball.setColor(GameLogic.OTHER_BALL_COLOR);
-								ball.setR(GameLogic.BALL_RADIUS);
-								ball.resetCoinCurrent();
-								break;
-						}
-					}
-					
-					String score = msg.getMeta("score");
-					if(score != null && !score.isEmpty()) {
-						int s = Integer.valueOf(score);
-						String username = msg.getMeta("userName");
-						for (Ball ball : gl.getBalls()) 
-							if(ball.getName().equals(username)) {
-								ball.setScore(s);
-								break;
-							}	
-					}
-					String current_coins = msg.getMeta("current");
-					if(current_coins != null && !current_coins.isEmpty()) {
-						int s = Integer.valueOf(current_coins);
-						String username = msg.getMeta("userName");
-						for (Ball ball : gl.getBalls()) 
-							if(ball.getName().equals(username)) {
-								ball.setCurrentCoins(s);;
-								break;
-							}	
-					}
-					
-					String[] str = msg.getMeta("ctrlMsg").split(",");
-					if(str[0].equals("Ball")) {			
-						updateBall(str, msg.getMeta("userName"), gl);
-					}		
-					if(str[0].equals("Coin")) {
-						updateCoins(str, gl);			
-				    }				
-					if(str[0].equals("HostExit"))
-						if(str[1].equals(userName))
-							isHost=true;
-					
+					handleCtrlMsg(msg);
 				} catch (Exception e) {
 					System.out.println(e.getMessage());
 				}
 			}	
-		}
-		
-		private void updateBall(String[] str, String username, GameLogic gl) {		
-	    	boolean ball_existed = false;  	
-	    	for (Ball ball : gl.getBalls()) 
-	    		if(ball.getName().equals(username)) {
-	    			int dx = Integer.valueOf(str[1]) - ball.getX();
-	    			int dy = Integer.valueOf(str[2]) - ball.getY();
-	    			if(dx > 0) {
-	    				if(dy > 0) {
-	    					ball.setFace(Facing.BOTTOMRIGHT);
-	    				} else if (dy < 0) {
-	    					ball.setFace(Facing.TOPRIGHT);
-	    				} else {
-	    					ball.setFace(Facing.RIGHT);
-	    				}
-	    			} else if (dx < 0){
-	    				if(dy > 0) {
-	    					ball.setFace(Facing.BOTTOMLEFT);
-	    				} else if (dy < 0) {
-	    					ball.setFace(Facing.TOPLEFT);
-	    				} else {
-	    					ball.setFace(Facing.LEFT);
-	    				}
-	    			} else {
-	    				if(dy > 0) {
-	    					ball.setFace(Facing.BOTTOM);
-	    				} else {
-	    					ball.setFace(Facing.TOP);
-	    				}
-	    			}
-					ball.setX(Integer.valueOf(str[1]));
-					ball.setY(Integer.valueOf(str[2]));
-					ball.setColor(GameLogic.OTHER_BALL_COLOR);
-					ball_existed = true;
-					break;
-	    		}  	
-	    	if(!ball_existed) {
-	    		Ball ball = new Ball(GameLogic.BALL_RADIUS, Integer.valueOf(str[1]), Integer.valueOf(str[2])
-	    				, GameLogic.OTHER_BALL_COLOR, username, false);
-	    		gl.getBalls().add(ball);
-	    	}
-		}
-		
-		private void updateCoins(String[] str, GameLogic gl) {
-	    	if(!isHost) {
-	    		gl.getCoins().clear();
-	    		for (int i = 0; i + 2 < str.length; i = i + 3) {
-	    			Ball coin = new Ball(GameLogic.COIN_RADIUS, Integer.valueOf(str[i+1]), Integer.valueOf(str[i+2]),
-	    					GameLogic.COIN_COLOR, userName, true);
-	    			Random random = new Random();
-					int color = random.nextInt(3) + i + 1;
-		            coin.setScore(color);
-	    			gl.getCoins().add(coin);
-	    		}
-	    	}
 		}
 	}
 
@@ -214,39 +95,11 @@ public class GameConnector{
 		public void farewell(Publisher pub, SubscriberStub subStub) {
 			if (GameConnector.this.participants.containsKey(subStub.getUUID())) {
 				System.out.println(GameConnector.this.participants.get(subStub.getUUID()) + " left the game");
-				GameLogic gl = gpanel.GetGameLogic();
-				Ball toRemove = null;
-				for (Ball ball : gl.getBalls()) 
-		    		if(ball.getName().equals(GameConnector.this.participants.get(subStub.getUUID()))) {
-						toRemove = ball;
-						break;
-		    		}  	
-				if(toRemove != null)
-				gl.getBalls().remove(toRemove);
+				gpanel.GetGameLogic().removeOtherBall(subStub.getUUID());
 			} else {
 				System.out.println("An unknown user left the game: " + subStub.getUUID());	
 			}
 		}	
-	}
-	
-	public void run() {
-		System.out.println("Start typing messages (empty line to quit):");
-		while (true) {
-			String line = "";
-			try {
-				line = reader.readLine();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			if (line.length() == 0)
-				break;
-			Message msg = new Message();
-			msg.putMeta("userName", userName);
-			msg.putMeta("ctrlMsg", line);
-			gamePub.send(msg);
-		}
-		gameNode.removePublisher(gamePub);
-		gameNode.removeSubscriber(gameSub);
 	}
 	
 	public void sendNewCoinCoord(ArrayList<Ball> coins) {		
@@ -255,7 +108,7 @@ public class GameConnector{
 			sb.append(coin.getXY_Str_coin());	
 		Message msg = new Message();
 		msg.putMeta("userName", userName);
-		msg.putMeta("chatMsg", sb.toString());
+		msg.putMeta("ctrlMsg", sb.toString());
 		gamePub.send(msg);
 	}
 	
@@ -295,5 +148,51 @@ public class GameConnector{
 		msg.putMeta("userName", this.userName);
 		msg.putMeta("ready", "true");
 		gamePub.send(msg);
+	}
+	
+	private void handleCtrlMsg(Message msg) {
+		GameLogic gl = gpanel.GetGameLogic();	
+		String ready = msg.getMeta("ready");
+		if(ready.equals("true")) {
+			sendNewBallCoord(gl.getMBall());
+			sendNewBallScore(gl.getMBall());
+			if(isHost) {
+				sendNewCoinCoord(gl.getCoins());
+			}
+		}	
+		
+		String resetPos = msg.getMeta("resetPos");
+		if(resetPos != null && !resetPos.isEmpty()) {
+			String[] str = resetPos.split(",");
+			String username = msg.getMeta("userName");
+			gl.setOtherBallPosition(str, username);
+		}
+		
+		String score = msg.getMeta("score");
+		if(score != null && !score.isEmpty()) {
+			int s = Integer.valueOf(score);
+			String username = msg.getMeta("userName");	
+			gl.setOtherBallScore(s, username);
+		}
+		String current_coins = msg.getMeta("current");
+		if(current_coins != null && !current_coins.isEmpty()) {
+			int s = Integer.valueOf(current_coins);
+			String username = msg.getMeta("userName");
+			gl.setOtherBallCurrentCoins(s, username);
+		}
+		
+		String[] str = msg.getMeta("ctrlMsg").split(",");
+		if(str[0].equals("Ball")) {			
+			gl.updateOtherBall(str, msg.getMeta("userName"));
+		}		
+		if(str[0].equals("Coin")) {
+			System.out.println("received coins");
+			gl.updateCoins(str);
+	    }				
+		if(str[0].equals("HostExit")) {
+			if(str[1].equals(userName)) {
+				isHost=true;
+			}
+		}
 	}
 }
