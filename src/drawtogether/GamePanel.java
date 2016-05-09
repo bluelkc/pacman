@@ -70,15 +70,15 @@ public class GamePanel extends JPanel implements ActionListener{
     	}
     	
     	int pos = 1;
-    	g2d.setFont(new Font("Dialog", Font.BOLD, 14)); 
+    	g2d.setFont(new Font("Dialog", Font.BOLD, 30)); 
     	for(Ball b : this.gl.getBalls()) {
     		if(b.isLocal()) {
     			g2d.setColor(GameLogic.MAIN_BALL_COLOR);
     		} else {
     			g2d.setColor(GameLogic.OTHER_BALL_COLOR);
     		}
-    		g2d.drawString(b.getName() + " : ", 80, 20 * pos);
-    		g2d.drawString(Integer.toString(b.getScore()), 150, 20 * pos);
+    		g2d.drawString(b.getName() + " : ", 50, 30 * pos);
+    		g2d.drawString(Integer.toString(b.getScore()), 200, 30 * pos);
     		pos ++;
     	}
     }
