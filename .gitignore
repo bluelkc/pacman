@@ -1,5 +1,6 @@
 *.log
 *.zip
+*.rtf
 bin
 dist
 .DS_Store
